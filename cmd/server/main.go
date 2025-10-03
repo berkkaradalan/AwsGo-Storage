@@ -10,21 +10,21 @@ import (
 	"time"
 
 	"github.com/berkkaradalan/AwsGo-Storage/config"
-	"github.com/gin-gonic/gin"
+	"github.com/berkkaradalan/AwsGo-Storage/handlers"
+	"github.com/berkkaradalan/AwsGo-Storage/repositories"
+	"github.com/berkkaradalan/AwsGo-Storage/routers"
+	"github.com/berkkaradalan/AwsGo-Storage/services"
 )
 
 func main() {
 	dbService := config.ConnectDatabase()
 	log.Println("Database connected successfully")
 
-	router := gin.Default()
-	
-	router.GET("/health", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"status": "healthy",
-			"message": "Server is running",
-		})
-	})
+	userRepo := repositories.NewUserRepository(dbService)
+	userService := services.NewUserService(userRepo)
+	userHandler := handlers.NewUserHandler(userService)
+
+	router := routers.SetupRouter(userHandler)
 
 	srv := &http.Server{
 		Addr:    ":8080",

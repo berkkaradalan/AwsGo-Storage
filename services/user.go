@@ -1,1 +1,68 @@
 package services
+
+import (
+	"context"
+	"errors"
+
+	"github.com/berkkaradalan/AwsGo-Storage/models"
+	"github.com/berkkaradalan/AwsGo-Storage/repositories"
+	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
+)
+
+type UserService struct {
+	userRepo *repositories.UserRepository
+}
+
+func NewUserService(userRepo *repositories.UserRepository) *UserService {
+	return &UserService{
+		userRepo: userRepo,
+	}
+}
+
+func (s *UserService) GetUserByID(ctx context.Context, userID string) (*models.User, error) {
+	if userID == "" {
+		return nil, errors.New("user ID cannot be empty")
+	}
+
+	user, err := s.userRepo.GetUserByID(ctx, userID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	user.UserPassword = ""
+
+	return user, nil
+}
+
+func (s *UserService) CreateUser(ctx context.Context, req models.CreateUserRequest) (*models.User, error) {
+	// existingUser, _ := s.userRepo.GetUserByID()
+	// if existingUser != nil {
+	// 	return nil, errors.New("email is already in use")
+	// }
+	// todo - add get user by email into userRepo
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.UserPassword), 10)
+
+	if err != nil {
+		return nil, err
+	}
+
+	user := &models.User{
+		UserID: uuid.New().String(),
+		UserName: req.UserName,
+		UserEmail: req.UserEmail,
+		UserPassword: string(hashedPassword),
+	}
+
+	user.SetTimestamps()
+
+	createdUser, err := s.userRepo.CreateUser(ctx, user)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return createdUser, nil
+}
