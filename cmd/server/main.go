@@ -20,11 +20,13 @@ func main() {
 	dbService := config.ConnectDatabase()
 	log.Println("Database connected successfully")
 
+	env := config.LoadEnv()
+
 	userRepo := repositories.NewUserRepository(dbService)
 	userService := services.NewUserService(userRepo)
 	userHandler := handlers.NewUserHandler(userService)
 
-	router := routers.SetupRouter(userHandler)
+	router := routers.SetupRouter(userHandler, *env)
 
 	srv := &http.Server{
 		Addr:    ":8080",
