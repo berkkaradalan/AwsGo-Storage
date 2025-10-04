@@ -57,9 +57,6 @@ func (r *UserRepository) GetUserByID(ctx context.Context, userId string) (*model
 }
 
 func (r *UserRepository) CreateUser(ctx context.Context, user *models.User) (*models.User, error) {
-	log.Printf("User before marshal: %+v", user)
-	// user.SetTimestamps()
-
 	item, err := attributevalue.MarshalMap(*user)
 
 	if err != nil {
@@ -71,12 +68,65 @@ func (r *UserRepository) CreateUser(ctx context.Context, user *models.User) (*mo
 		Item:      item,
 	})
 
-	log.Printf("Attempting to insert into table: %s", UsersTable)
-	log.Printf("Marshaled item: %+v", item)
-
 	if err != nil {
 		return nil, err
 	}
 
 	return user, nil
+}
+
+func (r *UserRepository) GetUserByEmail(ctx context.Context, userEmail string) (*models.User, error) {
+	result, err := r.service.Client.Query(ctx, &dynamodb.QueryInput{
+		TableName: aws.String(UsersTable),
+		IndexName: aws.String("UserEmailIndex"),
+		KeyConditionExpression: aws.String("UserEmail = :email"),
+		ExpressionAttributeValues: map[string]types.AttributeValue{
+			":email": &types.AttributeValueMemberS{Value: userEmail},
+		},
+	})
+
+	if err != nil {
+		log.Printf("couldn't get user with email: %v, error: %v", userEmail, err)
+		return nil, err
+	}
+
+	if len(result.Items) == 0 {
+		return nil, nil
+	}
+
+	var user models.User
+	if err := attributevalue.UnmarshalMap(result.Items[0], &user); err != nil {
+		log.Printf("User unmarshal failed: %v", err)
+		return nil, err
+	}
+
+	return &user, nil
+}
+
+func (r *UserRepository) GetUserByUserName(ctx context.Context, userName string) (*models.User, error) {
+	result, err := r.service.Client.Query(ctx, &dynamodb.QueryInput{
+		TableName: aws.String(UsersTable),
+		IndexName: aws.String("UserNameIndex"),
+		KeyConditionExpression: aws.String("UserName = :username"),
+		ExpressionAttributeValues: map[string]types.AttributeValue{
+			":username": &types.AttributeValueMemberS{Value: userName},
+		},
+	})
+
+	if err != nil {
+		log.Printf("couldn't get user with username: %v, error: %v", userName, err)
+		return nil, err
+	}
+
+	if len(result.Items) == 0 {
+		return nil, nil
+	}
+
+	var user models.User
+	if err := attributevalue.UnmarshalMap(result.Items[0], &user); err != nil {
+		log.Printf("User unmarshal failed: %v", err)
+		return nil, err
+	}
+
+	return &user, nil
 }

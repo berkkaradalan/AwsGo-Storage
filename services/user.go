@@ -37,10 +37,16 @@ func (s *UserService) GetUserByID(ctx context.Context, userID string) (*models.U
 }
 
 func (s *UserService) CreateUser(ctx context.Context, req models.CreateUserRequest) (*models.User, error) {
-	// existingUser, _ := s.userRepo.GetUserByID()
-	// if existingUser != nil {
-	// 	return nil, errors.New("email is already in use")
-	// }
+	existingUser, _ := s.userRepo.GetUserByEmail(ctx, req.UserEmail)
+	if existingUser != nil {
+		return nil, errors.New("email is already in use")
+	}
+
+	existingUser, _ = s.userRepo.GetUserByUserName(ctx, req.UserName)
+
+	if existingUser != nil {
+		return nil, errors.New("username is already in use")
+	}
 	// todo - add get user by email into userRepo
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.UserPassword), 10)
