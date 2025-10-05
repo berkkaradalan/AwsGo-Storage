@@ -1,11 +1,13 @@
 package routers
 
 import (
+	"github.com/berkkaradalan/AwsGo-Storage/config"
 	"github.com/berkkaradalan/AwsGo-Storage/handlers"
+	"github.com/berkkaradalan/AwsGo-Storage/middleware"
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRouter(userHandler *handlers.UserHandler) *gin.Engine{
+func SetupRouter(userHandler *handlers.UserHandler, env config.Env, authConfig *config.AuthConfig) *gin.Engine{
 	router := gin.Default()
 	
 	router.GET("/health", func(c *gin.Context) {
@@ -18,7 +20,14 @@ func SetupRouter(userHandler *handlers.UserHandler) *gin.Engine{
 	routes := router.Group("/api/v1") 
 	{
 		routes.GET("/user/:id", userHandler.GetUserByID)
-		routes.POST("/user", userHandler.CreateUser)
+		routes.POST("/user/register", userHandler.CreateUser)
+		routes.POST("/user/login", userHandler.Login)
+	}
+
+	protected := router.Group("/api/v1")
+	protected.Use(middleware.AuthMiddleware(authConfig))
+	{
+		protected.GET("/user/me", userHandler.GetProfile)
 	}
 
 	return router

@@ -19,6 +19,11 @@ type UserResponse struct {
 	UpdatedAt int64  `json:"updated_at"`
 }
 
+type LoginRequest struct {
+	UserEmail	 string `json:"user_email" binding:"required,email"`
+	UserPassword string `json:"user_password" binding:"required,min=8,max=50"`
+}
+
 type CreateUserRequest struct {
 	UserName     string `json:"user_name" binding:"required,min=3,max=50"`
 	UserEmail    string `json:"user_email" binding:"required,email"`

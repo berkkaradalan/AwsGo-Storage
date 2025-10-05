@@ -22,11 +22,14 @@ func main() {
 
 	env := config.LoadEnv()
 
+	authConfig := config.NewAuthConfig(*env)
+
 	userRepo := repositories.NewUserRepository(dbService)
-	userService := services.NewUserService(userRepo)
+	userService := services.NewUserService(userRepo, authConfig)
 	userHandler := handlers.NewUserHandler(userService)
 
-	router := routers.SetupRouter(userHandler, *env)
+
+	router := routers.SetupRouter(userHandler, *env, authConfig)
 
 	srv := &http.Server{
 		Addr:    ":8080",
