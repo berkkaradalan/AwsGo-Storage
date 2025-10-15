@@ -19,7 +19,7 @@ type UserRepository struct {
 	service *config.DynamoDBService
 }
 
-func NewUserRepository(service *config.DynamoDBService) *UserRepository {
+func NewUserRepository(service *config.DynamoDBService, s3Service *config.S3BucketService) *UserRepository {
 	return &UserRepository{
 		service: service,
 	}

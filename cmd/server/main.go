@@ -17,14 +17,19 @@ import (
 )
 
 func main() {
+	env := config.LoadEnv()
+	log.Println("Env loaded successfully")
+
 	dbService := config.ConnectDatabase()
 	log.Println("Database connected successfully")
 
-	env := config.LoadEnv()
+	s3Service := config.ConnectS3Bucket(env)
+	log.Println("S3 connected successfully")
+
 
 	authConfig := config.NewAuthConfig(*env)
 
-	userRepo := repositories.NewUserRepository(dbService)
+	userRepo := repositories.NewUserRepository(dbService, s3Service)
 	userService := services.NewUserService(userRepo, authConfig)
 	userHandler := handlers.NewUserHandler(userService)
 

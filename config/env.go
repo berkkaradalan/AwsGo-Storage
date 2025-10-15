@@ -11,6 +11,7 @@ import (
 type Env struct{
 	JWT_SECRET_KEY		string `mapstructure:"JWT_SECRET_KEY"`
 	JWT_EXPIRE_HOURS	int `mapstructure:"JWT_EXPIRE_HOURS"`
+	S3_BUCKET_NAME		string `mapstructure:"S3_BUCKET_NAME"`
 }
 
 func LoadEnv() (*Env){
@@ -31,5 +32,6 @@ func LoadEnv() (*Env){
 	return &Env{
 		JWT_SECRET_KEY: os.Getenv("JWT_SECRET_KEY"),
 		JWT_EXPIRE_HOURS: jwtExpireHours,
+		S3_BUCKET_NAME: os.Getenv("S3_BUCKET_NAME"),
 	}
 }
