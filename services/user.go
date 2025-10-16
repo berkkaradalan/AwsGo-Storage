@@ -50,7 +50,6 @@ func (s *UserService) CreateUser(ctx context.Context, req models.CreateUserReque
 	if existingUser != nil {
 		return nil, errors.New("username is already in use")
 	}
-	// todo - add get user by email into userRepo
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.UserPassword), 10)
 

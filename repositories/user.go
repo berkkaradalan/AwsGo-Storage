@@ -42,7 +42,7 @@ func (r *UserRepository) GetUserByID(ctx context.Context, userId string) (*model
 	}
 
 	if result.Item == nil {
-		return nil, fmt.Errorf("User with id : %v not found", userId)
+		return nil, fmt.Errorf("user with id : %v not found", userId)
 	}
 
 	err = attributevalue.UnmarshalMap(result.Item, &user)

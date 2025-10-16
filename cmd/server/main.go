@@ -33,8 +33,12 @@ func main() {
 	userService := services.NewUserService(userRepo, authConfig)
 	userHandler := handlers.NewUserHandler(userService)
 
+	storageRepo := repositories.NewStorageRepository(dbService, s3Service)
+	storageService := services.NewStorageService(storageRepo, authConfig)
+	storageHandler := handlers.NewStorageHandler(storageService)
 
-	router := routers.SetupRouter(userHandler, *env, authConfig)
+
+	router := routers.SetupRouter(userHandler, storageHandler, *env, authConfig)
 
 	srv := &http.Server{
 		Addr:    ":8080",

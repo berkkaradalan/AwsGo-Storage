@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRouter(userHandler *handlers.UserHandler, env config.Env, authConfig *config.AuthConfig) *gin.Engine{
+func SetupRouter(userHandler *handlers.UserHandler, storageHandler *handlers.StorageHandler, env config.Env, authConfig *config.AuthConfig) *gin.Engine{
 	router := gin.Default()
 	
 	router.GET("/health", func(c *gin.Context) {
@@ -22,6 +22,7 @@ func SetupRouter(userHandler *handlers.UserHandler, env config.Env, authConfig *
 		routes.GET("/user/:id", userHandler.GetUserByID)
 		routes.POST("/user/register", userHandler.CreateUser)
 		routes.POST("/user/login", userHandler.Login)
+		routes.POST("/storage/upload", storageHandler.UploadFile)
 	}
 
 	protected := router.Group("/api/v1")

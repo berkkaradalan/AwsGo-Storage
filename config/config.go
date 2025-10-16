@@ -98,6 +98,63 @@ func CreateUserTableInput() dynamodb.CreateTableInput {
 	}
 }
 
+func CreateStorageTableInput() dynamodb.CreateTableInput {
+	return dynamodb.CreateTableInput{
+		TableName: aws.String("storage"),
+		KeySchema: []dynamotypes.KeySchemaElement{
+			{
+				AttributeName: aws.String("ObjectID"),
+				KeyType:       dynamotypes.KeyTypeHash, // Partition key
+			},
+		},
+		AttributeDefinitions: []dynamotypes.AttributeDefinition{
+			{
+				AttributeName: aws.String("ObjectID"),
+				AttributeType: dynamotypes.ScalarAttributeTypeS, // String
+			},
+			{
+				AttributeName: aws.String("UserID"),
+				AttributeType: dynamotypes.ScalarAttributeTypeS, // String
+			},
+			{
+				AttributeName: aws.String("UploadedAt"),
+				AttributeType: dynamotypes.ScalarAttributeTypeS, // String (ISO 8601 format)
+			},
+		},
+		BillingMode: dynamotypes.BillingModePayPerRequest,
+		GlobalSecondaryIndexes: []dynamotypes.GlobalSecondaryIndex{
+			{
+				IndexName: aws.String("UserIDIndex"),
+				KeySchema: []dynamotypes.KeySchemaElement{
+					{
+						AttributeName: aws.String("UserID"),
+						KeyType:       dynamotypes.KeyTypeHash,
+					},
+				},
+				Projection: &dynamotypes.Projection{
+					ProjectionType: dynamotypes.ProjectionTypeAll,
+				},
+			},
+			{
+				IndexName: aws.String("UserIDUploadedAtIndex"),
+				KeySchema: []dynamotypes.KeySchemaElement{
+					{
+						AttributeName: aws.String("UserID"),
+						KeyType:       dynamotypes.KeyTypeHash,
+					},
+					{
+						AttributeName: aws.String("UploadedAt"),
+						KeyType:       dynamotypes.KeyTypeRange, // Sort key
+					},
+				},
+				Projection: &dynamotypes.Projection{
+					ProjectionType: dynamotypes.ProjectionTypeAll,
+				},
+			},
+		},
+	}
+}
+
 func ConnectDatabase() *DynamoDBService {
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 
@@ -119,6 +176,21 @@ func ConnectDatabase() *DynamoDBService {
 		log.Println("Creating user table")
 		userTableInput := CreateUserTableInput()
 		_, err := service.CreateTable(context.Background(), userTableInput, "user")
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	storageTableCheck, err := service.TableExists(context.TODO(), "storage")
+
+	if err != nil {
+		panic(err)
+	}
+
+	if !storageTableCheck {
+		log.Println("Creating storage table")
+		storageTableInput := CreateStorageTableInput()
+		_, err := service.CreateTable(context.Background(), storageTableInput, "storage")
 		if err != nil {
 			panic(err)
 		}
