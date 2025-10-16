@@ -22,13 +22,13 @@ func SetupRouter(userHandler *handlers.UserHandler, storageHandler *handlers.Sto
 		routes.GET("/user/:id", userHandler.GetUserByID)
 		routes.POST("/user/register", userHandler.CreateUser)
 		routes.POST("/user/login", userHandler.Login)
-		routes.POST("/storage/upload", storageHandler.UploadFile)
 	}
 
 	protected := router.Group("/api/v1")
 	protected.Use(middleware.AuthMiddleware(authConfig))
 	{
 		protected.GET("/user/me", userHandler.GetProfile)
+		protected.POST("/storage/upload", storageHandler.UploadFile)
 	}
 
 	return router
