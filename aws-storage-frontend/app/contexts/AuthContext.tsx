@@ -1,13 +1,14 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { authStorage } from "@/lib/auth"
 import { authAPI } from "@/lib/api"
 
 interface User {
-  user_id: string
-  user_name: string
-  user_email: string
+  id: string
+  name: string
+  email: string
 }
 
 interface AuthContextType {
@@ -23,9 +24,9 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const router = useRouter()
 
   useEffect(() => {
-    // Sayfa yüklendiğinde token kontrolü
     const token = authStorage.getToken()
     const savedUser = authStorage.getUser()
     
@@ -38,7 +39,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (email: string, password: string) => {
     const response = await authAPI.login({ email, password })
     
-    // Token ve user'ı kaydet
     authStorage.setToken(response.token)
     authStorage.setUser(response.user)
     setUser(response.user)
@@ -47,6 +47,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = () => {
     authStorage.clear()
     setUser(null)
+    router.push("/login")
   }
 
   return (
