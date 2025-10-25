@@ -82,6 +82,10 @@ func (s *UserService) Login(ctx context.Context, email, password string) (string
 		return "", nil, err
 	}
 
+	if user == nil {
+        return "", nil, errors.New("user not found")
+    }
+
 	if err := bcrypt.CompareHashAndPassword([]byte(user.UserPassword), []byte(password)); err != nil {
 		return "", nil, errors.New("invalid password")
 	}
