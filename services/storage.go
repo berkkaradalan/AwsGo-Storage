@@ -86,7 +86,8 @@ func (s *StorageService) ListFiles(ctx context.Context, userID string) (*models.
 	for i := range files.Data {
 		previewURL, err := s.storageRepo.GeneratePresignedURL(
 			ctx, 
-			files.Data[i].S3Key, 
+			files.Data[i].S3Key,
+			files.Data[i].ContentType,
 			30*time.Minute,
 		)
 		if err != nil {

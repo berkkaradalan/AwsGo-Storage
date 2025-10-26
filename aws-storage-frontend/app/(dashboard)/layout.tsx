@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/ui/app-sidebar"
 import { useAuth } from "@/app/contexts/AuthContext"
+import { StorageProvider } from "@/app/contexts/StorageContext"
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, loading } = useAuth()
@@ -32,12 +33,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   // Authenticated - show dashboard
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <main className="flex-1 overflow-y-auto">
-        <SidebarTrigger />
-        {children}
-      </main>
-    </SidebarProvider>
+    <StorageProvider>
+      <SidebarProvider>
+        <AppSidebar />
+        <main className="flex-1 overflow-y-auto">
+          <SidebarTrigger />
+          {children}
+        </main>
+      </SidebarProvider>
+    </StorageProvider>
   )
 }
