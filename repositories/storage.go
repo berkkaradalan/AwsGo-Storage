@@ -179,3 +179,21 @@ func (r *StorageRepository) DownloadFile(ctx context.Context, fileID string, use
 
     return data, nil
 }
+
+func (r *StorageRepository) GeneratePresignedURL(ctx context.Context, s3Key string, expiresIn time.Duration) (string, error) {
+    presignClient := s3.NewPresignClient(r.s3Service.Client)
+    
+    request, err := presignClient.PresignGetObject(ctx, &s3.GetObjectInput{
+        Bucket: aws.String(r.bucketName),
+        Key:    aws.String(s3Key),
+    }, func(opts *s3.PresignOptions) {
+        opts.Expires = expiresIn
+    })
+    
+    if err != nil {
+        log.Printf("Failed to generate presigned URL: %v", err)
+        return "", err
+    }
+    
+    return request.URL, nil
+}

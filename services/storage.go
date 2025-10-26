@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"mime/multipart"
+	"time"
 
 	"github.com/berkkaradalan/AwsGo-Storage/config"
 	"github.com/berkkaradalan/AwsGo-Storage/models"
@@ -80,6 +81,19 @@ func (s *StorageService) ListFiles(ctx context.Context, userID string) (*models.
 
 	if err != nil {
 		return nil, err
+	}
+
+	for i := range files.Data {
+		previewURL, err := s.storageRepo.GeneratePresignedURL(
+			ctx, 
+			files.Data[i].S3Key, 
+			30*time.Minute,
+		)
+		if err != nil {
+			log.Printf("Failed to generate preview URL for %s: %v", files.Data[i].ObjectID, err)
+			continue
+		}
+		files.Data[i].PreviewURL = previewURL
 	}
 
 	return files, nil

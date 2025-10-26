@@ -13,6 +13,7 @@ type StorageObject struct {
     UploadedAt    time.Time `dynamodbav:"UploadedAt"`
     UpdatedAt     time.Time `dynamodbav:"UpdatedAt"`
     Description   *string    `dynamodbav:"Description"`
+    PreviewURL    string    `dynamodbav:"-" json:"previewUrl,omitempty"`
 }
 
 type UploadFileRequest struct {
