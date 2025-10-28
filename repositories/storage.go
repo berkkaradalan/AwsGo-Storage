@@ -204,3 +204,58 @@ func (r *StorageRepository) GeneratePresignedURL(ctx context.Context, s3Key stri
     
     return request.URL, nil
 }
+
+func (r *StorageRepository) DeleteFile(ctx context.Context, userID string, fileID string) (*string, error){
+	result, err := r.dynamoService.Client.GetItem(ctx, &dynamodb.GetItemInput{
+        TableName: aws.String(StorageTable),
+        Key: map[string]types.AttributeValue{
+            "ObjectID": &types.AttributeValueMemberS{Value: fileID},
+        },
+    })
+
+	if err != nil {
+        log.Printf("GetItem error for fileID %s: %v", fileID, err)
+        return nil, err
+    }
+
+    if result.Item == nil {
+        return nil, errors.New("file not found")
+    }
+
+	var storageObj models.StorageObject
+    err = attributevalue.UnmarshalMap(result.Item, &storageObj)
+    if err != nil {
+        log.Printf("unmarshal error: %v", err)
+        return nil, err
+    }
+
+	if storageObj.UserID != userID {
+        return nil, errors.New("unauthorized: file does not belong to user")
+    }
+
+	_, err = r.dynamoService.Client.DeleteItem(ctx, &dynamodb.DeleteItemInput{
+		TableName: aws.String(StorageTable),
+		Key: map[string]types.AttributeValue{
+            "ObjectID": &types.AttributeValueMemberS{Value: fileID},
+        },
+	})
+
+	if err != nil {
+		log.Printf("DeleteItem error for fileID : %s reason :%v", err)
+		return nil, err
+	}
+
+	_, err = r.s3Service.Client.DeleteObject(ctx, &s3.DeleteObjectInput{
+		Bucket: aws.String(r.bucketName),
+		Key: aws.String(storageObj.S3Key),
+	})
+
+	if err != nil {
+		log.Printf("DeleteObject error for fileID %s: %v", fileID, err)
+		return nil, err
+	}
+
+	deletionMessage := fmt.Sprintf("Object with id :%v deleted.", fileID)
+
+	return &deletionMessage, nil
+}

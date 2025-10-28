@@ -117,3 +117,21 @@ func (s *StorageService) DownloadFile(ctx context.Context, fileID string, userID
 
     return fileData, nil
 }
+
+func (s *StorageService) DeleteFile(ctx context.Context, userID string, fileID string) (*string, error) {
+	if userID == "" {
+		return nil, errors.New("file ID cannot be empty")
+	}
+
+	if fileID == "" {
+		return nil, errors.New("file ID cannot be empty")
+	}
+
+	deleteFile, err := s.storageRepo.DeleteFile(ctx, userID, fileID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return deleteFile, nil
+}

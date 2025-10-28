@@ -84,3 +84,18 @@ func (h *StorageHandler) DownloadFile(c *gin.Context) {
     c.Data(http.StatusOK, "application/octet-stream", fileData)
 
 }
+
+func (h *StorageHandler) DeleteFile(c *gin.Context) {
+	userData := middleware.GetCurrentClaims(c)
+	userID := userData.UserID
+	fileID := c.Param("id")
+
+	deleteMessage, err := h.storageService.DeleteFile(c, userID, fileID)
+
+	if err != nil ||  deleteMessage == nil{
+		c.JSON(http.StatusExpectationFailed, gin.H{"error": "Error while deleting file"})
+		return
+	}
+
+	c.JSON(http.StatusOK, deleteMessage)
+}

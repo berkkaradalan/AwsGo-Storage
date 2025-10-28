@@ -33,6 +33,7 @@ func SetupRouter(userHandler *handlers.UserHandler, storageHandler *handlers.Sto
 		protected.POST("/storage/upload", storageHandler.UploadFile)
 		protected.GET("/storage/files", storageHandler.ListFiles)
 		protected.GET("/storage/files/:id/download", storageHandler.DownloadFile)
+		protected.DELETE("/storage/files/:id/delete", storageHandler.DeleteFile)
 	}
 
 	return router
