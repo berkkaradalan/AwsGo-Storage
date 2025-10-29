@@ -6,6 +6,8 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/ui/app-sidebar"
 import { useAuth } from "@/app/contexts/AuthContext"
 import { StorageProvider } from "@/app/contexts/StorageContext"
+import { Toaster } from "sonner"
+
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, loading } = useAuth()
@@ -33,6 +35,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   // Authenticated - show dashboard
   return (
+    <>
     <StorageProvider>
       <SidebarProvider>
         <AppSidebar />
@@ -42,5 +45,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </main>
       </SidebarProvider>
     </StorageProvider>
+    <Toaster position="top-right" richColors />
+    </>
   )
 }

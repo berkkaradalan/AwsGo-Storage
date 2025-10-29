@@ -30,6 +30,8 @@ interface StorageContextType {
   uploading: boolean
   refetch: () => Promise<void>
   uploadFile: (file: File, description?: string) => Promise<void>
+  deleteFile: (fileId: string) => Promise<void>
+  downloadFile: (fileId: string, fileName: string) => Promise<void>
 }
 
 const StorageContext = createContext<StorageContextType | undefined>(undefined)
@@ -53,7 +55,6 @@ export function StorageProvider({ children }: { children: ReactNode }) {
         throw new Error("No authentication token found")
       }
 
-      //todo - add dynamic url via env
       const response = await fetch("http://localhost:8080/api/v1/storage/files", {
         method: "GET",
         headers: {
@@ -122,6 +123,70 @@ export function StorageProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  const deleteFile = async (fileId: string) => {
+    if (typeof window === 'undefined') return
+
+    try {
+      const token = localStorage.getItem("auth_token")
+      if (!token) {
+        throw new Error("No authentication token found")
+      }
+
+      const response = await fetch(`http://localhost:8080/api/v1/storage/files/${fileId}/delete`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || "Error while deleting file")
+      }
+
+      const data = await response.json()
+      await fetchFiles()
+    } catch (err) {
+      throw err
+    }
+  }
+
+  const downloadFile = async (fileId: string, fileName: string) => {
+    if (typeof window === 'undefined') return
+
+    try {
+      const token = localStorage.getItem("auth_token")
+      if (!token) {
+        throw new Error("No authentication token found")
+      }
+
+      const response = await fetch(`http://localhost:8080/api/v1/storage/files/${fileId}/download`, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || "Error while downloading file.")
+      }
+
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = fileName
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+    } catch (err) {
+      throw err
+    }
+  }
+
   useEffect(() => {
     setMounted(true)
   }, [])
@@ -133,7 +198,7 @@ export function StorageProvider({ children }: { children: ReactNode }) {
   }, [mounted])
 
   return (
-    <StorageContext.Provider value={{ files, loading, error, uploading, refetch: fetchFiles, uploadFile }}>
+    <StorageContext.Provider value={{ files, loading, error, uploading, refetch: fetchFiles, uploadFile, deleteFile, downloadFile }}>
       {children}
     </StorageContext.Provider>
   )
