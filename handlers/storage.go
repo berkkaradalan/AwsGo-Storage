@@ -97,5 +97,5 @@ func (h *StorageHandler) DeleteFile(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, deleteMessage)
+	c.JSON(http.StatusOK, gin.H{"message":deleteMessage})
 }
