@@ -57,3 +57,17 @@ The system is designed to run seamlessly on **AWS EC2** (or Lambda) instances.
 ![Project Preview](./aws-storage-preview-images/preview1.png)
 ![Project Preview](./aws-storage-preview-images/preview2.png)
 ![Project Preview](./aws-storage-preview-images/preview3.png)
+
+## 📌 Todo
+
+- [ ] Dockerize backend and frontend
+- [ ] Frontend env variables
+- [ ] Error handling on backend
+- [ ] Logging with a struct
+- [ ] Deploy EC2 instance using Terraform
+
+<!-- ### My Socials -->
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Profile-blue?logo=linkedin&logoColor=white)](https://www.linkedin.com/in/berkkaradalan)
+[![GitHub](https://img.shields.io/badge/GitHub-Profile-black?logo=github&logoColor=white)](https://github.com/berkkaradalan)
+[![Website](https://img.shields.io/badge/Website-Visit-blue?logo=internet-explorer&logoColor=white)](https://berkk.is-a.dev)
