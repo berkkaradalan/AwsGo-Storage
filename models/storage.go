@@ -37,3 +37,22 @@ type ListStorageObjectsResponse struct {
     Count    int              `json:"count"`
     // NextToken *string         `json:"nextToken,omitempty"`
 }
+
+type MonthlyUsage struct {
+	Month     string  `json:"month"`
+	MonthName string  `json:"monthName"`
+	TotalSize int64   `json:"totalSize"`
+	FileCount int     `json:"fileCount"`
+	SizeInMB  float64 `json:"sizeInMB"`
+}
+
+type DashboardData struct {
+	Months  []MonthlyUsage         `json:"months"`
+	Summary map[string]interface{} `json:"summary"`
+}
+
+type DashboardResponse struct {
+	Success bool          `json:"success"`
+	Message string        `json:"message"`
+	Data    DashboardData `json:"data"`
+}

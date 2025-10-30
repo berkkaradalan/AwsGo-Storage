@@ -135,3 +135,17 @@ func (s *StorageService) DeleteFile(ctx context.Context, userID string, fileID s
 
 	return deleteFile, nil
 }
+
+func (s *StorageService) GetDashboardMetrics(ctx context.Context, userID string) (*models.DashboardResponse, error) {
+	if userID == "" {
+		return nil, errors.New("file ID cannot be empty")
+	}
+
+	dashboardMetrics, err := s.storageRepo.GetDashboardMetrics(ctx, userID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return dashboardMetrics, nil
+}

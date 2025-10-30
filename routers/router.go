@@ -34,6 +34,7 @@ func SetupRouter(userHandler *handlers.UserHandler, storageHandler *handlers.Sto
 		protected.GET("/storage/files", storageHandler.ListFiles)
 		protected.GET("/storage/files/:id/download", storageHandler.DownloadFile)
 		protected.DELETE("/storage/files/:id/delete", storageHandler.DeleteFile)
+		protected.GET("/storage/dashboard", storageHandler.GetDashboardMetrics)
 	}
 
 	return router

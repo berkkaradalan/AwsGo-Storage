@@ -99,3 +99,16 @@ func (h *StorageHandler) DeleteFile(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message":deleteMessage})
 }
+
+func (h *StorageHandler) GetDashboardMetrics(c *gin.Context) {
+	userData := middleware.GetCurrentClaims(c)
+	userID := userData.UserID
+
+	dashboardMetrics, err := h.storageService.GetDashboardMetrics(c, userID)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Error while getting dashboard metrics"})
+	}
+
+	c.JSON(http.StatusOK, dashboardMetrics)
+}
